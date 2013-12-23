@@ -28,6 +28,11 @@ function onCrossDomainHandler(req, res) {
 	res.end(xml);
 }
 */
+app.get('/login', function(req, res) {
+	var uid = Math.floor(Math.random() * 10) + parseInt(new Date().getTime()).toString(36).toUpperCase();
+	console.log(uid);
+	res.send(uid);
+});
 
 app.get('/chat', function(req, res) {
 	var message = req.query.message;
