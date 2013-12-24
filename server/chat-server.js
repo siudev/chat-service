@@ -1,43 +1,40 @@
-var express = require('express');
-var app = express();
+#!/bin/env node
 
-app.configure(function() {
-	app.use(express.bodyParser());
+var PORT = 5015;
+
+var io = require('socket.io').listen(PORT);
+console.log("chat server is listening on port " + PORT);
+
+var conn_count = 0;
+
+io.sockets.on('connection', function(socket) {
+	socket.on('req_login', function(data) {
+		conn_count++;
+		login(socket, data.name);
+	});
+
+	socket.on('req_chat', function(data) {
+		chat(socket, data.name, data.message);
+	});
+
+	socket.on('req_logout', function(data) {
+		conn_count--;
+		logout(socket, data.name);
+	});
 });
 
-app.configure('development', function() {
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function() {
-	app.use(express.errorHandler());
-});
-
-/*
-app.get("/crossdomain.xml", onCrossDomainHandler)
-function onCrossDomainHandler(req, res) {
-	var xml = '<?xml version="1.0"?>\n';
-	xml += '<!DOCTYPE cross-domain-policy SYSTEM "http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd">\n';
-	xml += '<cross-domain-policy>\n';
-	xml += '<allow-http-request-headers-from domain="*" headers="*" />\n';
-	xml += '<allow-access-from domain="*" />\n';
-	xml += '</cross-domain-policy>\n';
-
-	req.setEncoding('utf8');
-	res.writeHead(200, {'Content-Type': 'text/xml'});
-	res.end(xml);
+var login = function(socket, name) {
+	io.sockets.emit('ntf_login', { name:name });
+	socket.emit('res_login', { name:name });
+	console.log(name + ' has been connected. currently ' + conn_count + ' users are online.');
 }
-*/
-app.get('/login', function(req, res) {
-	var uid = Math.floor(Math.random() * 10) + parseInt(new Date().getTime()).toString(36).toUpperCase();
-	console.log(uid);
-	res.send(uid);
-});
 
-app.get('/chat', function(req, res) {
-	var message = req.query.message;
-	console.log('received message: ' + message);
-});
+var logout = function(socket, name) {
+	io.sockets.emit('ntf_logout', { name:name });
+	console.log(name + ' has been disconnected.');
+}
 
-app.listen(5015);
-console.log("chat server is listening...");
+var chat = function(socket, name, message) {
+	io.sockets.emit('ntf_chat', { name:name, message:message });
+	console.log('transmitted message \'' + name + ': ' + message + '\'');
+}
