@@ -3,6 +3,8 @@
 var SERVER_IP = '192.168.0.20';
 var SERVER_PORT = 5015;
 
+replaceIP();
+
 var socket = require('socket.io-client').connect(SERVER_IP + ':' + SERVER_PORT);
 var name = '';
 
@@ -41,3 +43,16 @@ process.stdin.on('data', function(input) {
 
 process.stdin.on('end', function() {
 });
+
+function replaceIP() {
+	console.log("replaceIP", process.argv[2]);
+	if(process.argv[2] != null) {
+		SERVER_IP = process.argv[2];
+		console.log("Target SERVER_IP has changed :", SERVER_IP);
+	}
+	process.argv.forEach(function (val, index, array) {
+		console.log(index + ': ' + val);
+	});
+}
+
+
