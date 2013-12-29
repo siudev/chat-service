@@ -2,8 +2,18 @@
 
 var PORT = 5015;
 
-var io = require('socket.io').listen(PORT);
-console.log("chat server is listening on port " + PORT);
+var server = require("http").createServer(),
+	io = require('socket.io').listen(server, {"log level" : 1});
+server.listen(PORT, function(){
+	console.log("Chat server is listening on " + server.address().address + ":" + server.address().port);
+});
+server.on('error', function(e) {
+	if (e.code == 'EADDRINUSE') {
+		console.log('Chat server port is already used.');
+		process.exit(1);
+	}
+});
+
 
 var conn_count = 0;
 
