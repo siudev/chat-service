@@ -3,8 +3,11 @@
 var SERVER_IP = '192.168.0.20';
 var SERVER_PORT = 5015;
 
+var ENCRYPT_KEY='sUi$Dev_20@14*(SuIdEV)';
+
 replaceIP();
 
+var crypto=require('crypto');
 var socket = require('socket.io-client').connect(SERVER_IP + ':' + SERVER_PORT);
 var name = '';
 
@@ -37,7 +40,7 @@ process.stdin.on('data', function(input) {
 	if (name == '') {
 		socket.emit('req_login', { name:input.trim() });
 	} else {
-		socket.emit('req_chat', { name:name, message:input.trim() });
+		socket.emit('req_chat', { name:name, message:encrypt(input.trim()) });
 	}
 });
 
@@ -55,4 +58,17 @@ function replaceIP() {
 	});
 }
 
+function encrypt(text){
+  var cipher = crypto.createCipher('aes-256-cbc',ENCRYPT_KEY)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+ 
+function decrypt(text){
+  var decipher = crypto.createDecipher('aes-256-cbc',ENCRYPT_KEY)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
 

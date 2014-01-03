@@ -2,6 +2,9 @@
 
 var PORT = 5015;
 
+var ENCRYPT_KEY='sUi$Dev_20@14*(SuIdEV)';
+
+var crypto=require('crypto');
 var server = require("http").createServer(),
 	io = require('socket.io').listen(server, {"log level" : 1});
 server.listen(PORT, function(){
@@ -64,7 +67,23 @@ var chat = function(socket, message) {
 		return;
 	}
 	var name = dicSocketName[socket.id].name;
+	var chat_text=decrypt(message);
 
-	io.sockets.emit('ntf_chat', { name:name, message:message });
-	console.log('transmitted message \'' + name + ': ' + message + '\'');
+	io.sockets.emit('ntf_chat', { name:name, message:chat_text });
+	console.log('transmitted message \'' + name + ': ' + chat_text + '\'');
 }
+
+function encrypt(text){
+  var cipher = crypto.createCipher('aes-256-cbc',ENCRYPT_KEY)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+ 
+function decrypt(text){
+  var decipher = crypto.createDecipher('aes-256-cbc',ENCRYPT_KEY)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
+
