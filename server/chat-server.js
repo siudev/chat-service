@@ -30,6 +30,12 @@ io.sockets.on('connection', function(socket) {
 		chat(socket, data.message);
 	});
 
+	socket.on('req_whisperChat', function(data) {
+
+		whisperChat(socket, data.name,data.message);
+	});
+
+
 	socket.on('req_logout', function(data) {
 		logout(socket);
 	});
@@ -43,6 +49,7 @@ var login = function(socket, name) {
 		return;
 	}
 	dicSocketName[socket.id] = { name:name };
+
 	conn_count++;
 
 	io.sockets.emit('ntf_login', { name:name });
@@ -73,6 +80,21 @@ var chat = function(socket, message) {
 	console.log('transmitted message \'' + name + ': ' + chat_text + '\'');
 }
 
+var whisperChat = function(socket, name, message) {
+
+	if(dicSocketName[socket.id] == null ) return;
+	
+	for( var n in io.sockets.sockets ){
+		if( dicSocketName[n].name == name ){
+			var chat_text=decrypt(message);
+
+			socket.emit('res_pvt_chat',{ name:name, message:chat_text });
+			io.sockets.sockets[n].emit('pvt_chat', { name:dicSocketName[socket.id].name, message:chat_text });
+			return;
+		}
+	}
+}
+
 function encrypt(text){
   var cipher = crypto.createCipher('aes-256-cbc',ENCRYPT_KEY)
   var crypted = cipher.update(text,'utf8','hex')
@@ -86,4 +108,3 @@ function decrypt(text){
   dec += decipher.final('utf8');
   return dec;
 }
-
