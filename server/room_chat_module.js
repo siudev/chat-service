@@ -37,6 +37,7 @@ function req_joinroom( socket, data ) {
 		data.room = socket.username + '\'s room'; 
 	socket.join( data.room );
 	socket.room = data.room;
+	socket.emit( 'res_joinroom' );
 	server.send( socket, 'ntf_joinroom', { username:socket.username } );
 	console.log( socket.username + ' has been joined to ' + data.room  );
 }
