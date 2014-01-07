@@ -45,7 +45,7 @@ function req_joinroom( socket, data ) {
 function req_leaveroom( socket, data ) {
 	server.send( socket, 'ntf_leaveroom', { username:socket.username } );
 	socket.leave( socket.room );
-	console.log( socket.username + ' has been left from ' + data.room );
+	console.log( socket.username + ' has been left from ' + socket.room );
 }
 
 function req_chat( socket, data ) { 
