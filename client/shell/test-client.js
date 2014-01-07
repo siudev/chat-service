@@ -1,5 +1,6 @@
 #!/bin/env node
 
+<<<<<<< HEAD
 var SERVER_IP = '192.168.0.20';
 var SERVER_PORT = 5015;
 
@@ -163,3 +164,10 @@ function decrypt(text){
   dec += decipher.final('utf8');
   return dec;
 }
+=======
+var socket = require( "./chat_socket" );
+var client = require( "./room_client" );
+
+client.create( socket );
+client.run();
+>>>>>>> 855c62b0e5b167254b1a4501dd7a0b6fadae639a

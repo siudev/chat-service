@@ -1,5 +1,6 @@
 #!/bin/env node
 
+<<<<<<< HEAD
 var PORT = 5015;
 
 var ENCRYPT_KEY='sUi$Dev_20@14*(SuIdEV)';
@@ -108,3 +109,9 @@ function decrypt(text){
   dec += decipher.final('utf8');
   return dec;
 }
+=======
+var server = require( "./server" );
+var chat = require( "./room_chat_module" );
+
+chat.on( server );
+>>>>>>> 855c62b0e5b167254b1a4501dd7a0b6fadae639a
