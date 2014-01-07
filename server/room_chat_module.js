@@ -13,6 +13,7 @@ function connection_proc( socket ) {
 	server.register_event( socket, 'req_joinroom', req_joinroom );
 	server.register_event( socket, 'req_leaveroom', req_leaveroom );
 	server.register_event( socket, 'req_chat', req_chat );
+	server.register_event( socket, 'req_whisper', req_whisper);
 	server.register_event( socket, 'disconnect', req_leaveroom );
 } 
 
@@ -53,4 +54,15 @@ function req_chat( socket, data ) {
 		     { username:socket.username, message:message } );
 	console.log( socket.room + ' transmitted message -> \'' + 
 		     socket.username + ' : ' + data.message + '\'' );
+}
+
+function req_whisper( socket, data ){
+	var message = crypto.encrypt( data.message );
+	var name = data.name;
+	
+	if( server.send_private( name, 'ntf_whisper', 
+	     { name:socket.username, message:message } ))
+		socket.emit('res_whisper',{ name:name, message:message });
+	
+
 }

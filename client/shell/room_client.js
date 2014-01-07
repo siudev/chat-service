@@ -1,5 +1,9 @@
 var crypto = require( "./../../common/chat_crypto" );
 var io = require( "./chat_io" );
+var chatCommand = require( "./chat_command" );
+
+chatCommand.addCommand( "/", [ "dice", "roll", "random" ], "ex : /dice, /dice 100", diceHan  );
+chatCommand.addCommand("/", [ "w", "whisper" ],  "ex : /w [name] [msg]",whisperHan  );
 
 var socket;
 var username = '';
@@ -10,9 +14,11 @@ exports.create = function( sock ) {
 	socket.register_event( 'res_connect', res_connect );
 	socket.register_event( 'res_login', res_login );
 	socket.register_event( 'res_roomlist', res_roomlist );
+	socket.register_event( 'res_whisper', res_whisper );
 	socket.register_event( 'ntf_joinroom', ntf_joinroom );
 	socket.register_event( 'ntf_leaveroom', ntf_leaveroom );
 	socket.register_event( 'ntf_chat', ntf_chat );
+	socket.register_event( 'ntf_whisper', ntf_whisper );
 }
  
 function res_connect( data ) {
@@ -46,6 +52,12 @@ function res_roomlist( data ) {
 	io.change_state( 'display_roomlist' );
 }
 
+function res_whisper( data )
+{
+	var message = crypto.decrypt( data.message );
+	process.stdout.write('to '+data.name + ': ' + message + '\n');
+}
+
 
 function ntf_joinroom( data ) { 
 	io.write( data.username + ' join room.\n' );
@@ -59,6 +71,12 @@ function ntf_leaveroom( data ) {
 function ntf_chat( data ) {
 	var message = crypto.decrypt( data.message );
 	io.write( data.username + ' : ' + message + '\n' );
+}
+
+function ntf_whisper( data )
+{
+	var message = crypto.decrypt( data.message );
+	process.stdout.write('from '+data.name + ': ' + message + '\n');
 }
 
 
@@ -85,5 +103,33 @@ function display_roomlist_state( input ) {
 }
 
 function joinroom_state( input ) {
+	var text = input.trim();
+
+	if( !chatCommand.isCommand(text) )
 	socket.send( 'req_chat', { message:input.trim() } );	
+}
+
+
+function diceHan(data)
+{
+	var dice = Number(data);
+	if( isNaN(dice) || dice <= 0 ){
+		dice = 100;
+	}
+
+	var text = username+' rolled a '+ Math.floor(Math.random()*dice)+' of '+dice;
+	socket.send('req_chat', { message:( text ) });
+	
+		
+}
+
+function whisperHan(data)
+{
+	var wName = data.split(' ')[0];
+	var text = data.substr( wName.length+1);
+
+	if( wName == '' || text == '' || wName == username) return;
+
+	socket.send('req_whisper', { name:wName, message:text });
+
 }

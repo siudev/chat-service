@@ -5,6 +5,7 @@ var PORT = 5015;
 var server = require( "http" ).createServer(),
 	io = require( 'socket.io' ).listen( server, { "log level" : 1 } );
 
+
 server.listen( PORT, function() {
 	console.log( "Chat server is listening on " + 
 		     server.address().address + ":" + server.address().port );
@@ -33,6 +34,19 @@ exports.send = function( socket, tag, data ) {
 	io.sockets.in( socket.room ).emit( tag, data );
 }
 
+exports.send_private = function( name, tag, data ) {
+	for( var n in io.sockets.sockets ){
+		if( io.sockets.sockets[n].username == name ){
+			io.sockets.sockets[n].emit(tag, data);
+			return true;
+		}
+	}
+	
+	return false;
+	
+	
+}
+
 exports.all_client_count = function() {
 	return io.sockets.clients().length;
 }
@@ -40,3 +54,6 @@ exports.all_client_count = function() {
 exports.rooms = function() {
 	return io.sockets.manager.rooms;
 }
+
+
+
