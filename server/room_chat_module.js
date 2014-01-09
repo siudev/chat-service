@@ -37,6 +37,7 @@ function req_joinroom( socket, data ) {
 		data.room = socket.username + '\'s room'; 
 	socket.join( data.room );
 	socket.room = data.room;
+	socket.emit( 'res_joinroom' );
 	server.send( socket, 'ntf_joinroom', { username:socket.username } );
 	console.log( socket.username + ' has been joined to ' + data.room  );
 }
@@ -44,7 +45,7 @@ function req_joinroom( socket, data ) {
 function req_leaveroom( socket, data ) {
 	server.send( socket, 'ntf_leaveroom', { username:socket.username } );
 	socket.leave( socket.room );
-	console.log( socket.username + ' has been left from ' + data.room );
+	console.log( socket.username + ' has been left from ' + socket.room );
 }
 
 function req_chat( socket, data ) { 

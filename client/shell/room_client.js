@@ -10,6 +10,7 @@ exports.create = function( sock ) {
 	socket.register_event( 'res_connect', res_connect );
 	socket.register_event( 'res_login', res_login );
 	socket.register_event( 'res_roomlist', res_roomlist );
+	socket.register_event( 'res_joinroom', res_joinroom );
 	socket.register_event( 'ntf_joinroom', ntf_joinroom );
 	socket.register_event( 'ntf_leaveroom', ntf_leaveroom );
 	socket.register_event( 'ntf_chat', ntf_chat );
@@ -46,10 +47,12 @@ function res_roomlist( data ) {
 	io.change_state( 'display_roomlist' );
 }
 
+function res_joinroom( data ) {
+	io.change_state( 'join_room' );
+}
 
 function ntf_joinroom( data ) { 
 	io.write( data.username + ' join room.\n' );
-	io.change_state( 'join_room' );
 }
 
 function ntf_leaveroom( data ) {
